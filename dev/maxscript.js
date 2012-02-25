@@ -67,7 +67,12 @@ Last update: 2/24/2012
 		var self = this, ui = {};
 
 		function init(){
-			el.css("position","absolute");
+			ui.pos = el.position();
+			el.css({
+				position: 'absolute',
+				top: ui.pos.top,
+				left: ui.pos.left
+			});
 			el.mousedown(setEvents); 
 			return self;
 		}
@@ -90,8 +95,9 @@ Last update: 2/24/2012
 			
 		function mouseMove(e){
 			window.focus();
-			var	movedX = Mouse.x - ui.startX,
-				movedY = Mouse.y - ui.startY;
+			var	movedX 	= Mouse.x - ui.startX,
+				movedY 	= Mouse.y - ui.startY,
+				parent	= el.parent();
 
 			movedX = Math.round(movedX/o.snap[0]) * o.snap[0];
 			movedY = Math.round(movedY/o.snap[1]) * o.snap[1];
@@ -102,14 +108,24 @@ Last update: 2/24/2012
 			var	moveX = ui.pos.left + movedX,
 				moveY = ui.pos.top + movedY;
 			
+			if (o.constraint=="container"){
+				var	rightBound	= parent.width()-el.outerWidth(),
+					bottomBound	= parent.height()-el.outerHeight();
+				if (moveX < 0) moveX = 0;
+				if (moveX > rightBound) moveX = rightBound;
+				if (moveY < 0) moveY = 0;
+				if (moveY > bottomBound) moveY = bottomBound;
+			}
 			if (o.xbounds) {
 				var rightBound = o.xbounds[1] - el.outerWidth();
 				if (moveX < o.xbounds[0]) moveX = o.xbounds[0];
-				if (moveX > rightBound) moveX = rightBound;}
+				if (moveX > rightBound) moveX = rightBound;
+			}
 			if (o.ybounds) {
 				var bottomBound = o.ybounds[1] - el.outerHeight();
 				if (moveY < o.ybounds[0]) moveY = o.ybounds[0];
-				if (moveY > bottomBound) moveY = bottomBound;}
+				if (moveY > bottomBound) moveY = bottomBound;
+			}
 			
 			el.css({left: moveX, top: moveY});
 			ui.left = moveX;
@@ -159,8 +175,13 @@ Last update: 2/24/2012
 			directs = {};
 
 		function init(){
-			el.css("position","absolute");
-			
+			ui.old = {
+				left: el.position().left,
+				top: el.position().top,
+				width: el.width(),
+				height: el.height()
+			};
+			el.css({position: 'absolute',top: ui.old.top,left: ui.old.left});
 			$(allDirects).each(function(i,d){
 				if (o[d]!=false) {
 					directs[d] = $(o[d], el);
@@ -181,6 +202,7 @@ Last update: 2/24/2012
 				width: el.width(),
 				height: el.height()
 			};
+			
 			// Gets what direction is being resized
 			var handle = $(e.target);
 			$(allDirects).each(function(i,d){
@@ -189,7 +211,6 @@ Last update: 2/24/2012
 			});
 			
 			// Adds drag events & prevents text selection
-			el.css({top: ui.old.top, left: ui.old.left});
 			window.focus();
 			$(document).mousemove(mouseMove)
 				.mouseup(mouseUp)
