@@ -1,9 +1,9 @@
 /*********************************
 ==========================
 MaxScript jQuery Add-Ons
-Version: 2.1
+Version: 2.2
 Author: Max Olson
-Last update: 7/21/2012
+Last update: 8/29/2012
 ==========================
 **********************************/
 
@@ -543,6 +543,7 @@ Last update: 7/21/2012
 			onStart: function(){},
 			onDrag: function(){},
 			onStop: function(){},
+			placeholderClass: "",
 			dragClass: ""
 		}, options);
 		return this.each(function(){
@@ -566,7 +567,7 @@ Last update: 7/21/2012
 				top: pos.top, left: pos.left,
 				zIndex: 10000
 			});
-			placeholder = $("<li/>").css("visibility","hidden");
+			placeholder = $("<li/>").addClass(self.o.placeholderClass).css("visibility","hidden");
 			ui.el.before(placeholder);
 			self.o.onStart(e,ui);
 		}
@@ -574,12 +575,13 @@ Last update: 7/21/2012
 			var pos 	= ui.top,
 				h		= ui.el.outerHeight(),
 				index	= ui.el.index(),
-				step	= Math.round(ui.movedY/h)+lastIndex+1;
+				step	= Math.round(ui.movedY/h)+lastIndex+1,
+				$items	= $(el).children();
 			
 			if (step > index){
-				$("li",el).eq(step).after(placeholder,ui.el);
+				$items.eq(step).after(placeholder,ui.el);
 			} else if (step < index){
-				$("li",el).eq(step-1).before(placeholder,ui.el);
+				$items.eq(step-1).before(placeholder,ui.el);
 			}
 			self.o.onDrag(e,ui);
 		}
